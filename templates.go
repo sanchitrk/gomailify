@@ -72,3 +72,25 @@ const CodeBlockTemplate = `
   </tbody>
 </table>
 `
+
+const TextTemplate = `
+	{{ .Value }}
+	{{ range .Children }}
+		{{ . }}
+	{{ end }}
+`
+
+const InlineCodeTemplate = `
+<style>
+    meta ~ .cino {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    meta ~ .cio {
+        display: block !important;
+    }
+</style>
+<code class="cino">{{ . }}</code>
+<span class="cio" style="display: none">{{ . }}</span>
+`

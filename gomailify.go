@@ -129,6 +129,7 @@ type Paragraph struct {
 }
 
 func NewParagraph(value string) *Paragraph {
+	fmt.Println("** Creating paragraph **")
 	// Create the template for paragraph elements
 	tmpl := template.Must(template.New("paragraph").Parse(ParagraphTemplate))
 
@@ -249,6 +250,45 @@ func (c *CodeNode) Render() (string, error) {
 
 	var buf bytes.Buffer
 	if err := c.tmpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+type TextNode struct {
+	BaseNode
+}
+
+func NewTextNode(value string) *TextNode {
+	tmpl := template.Must(template.New("text").Parse(TextTemplate))
+	return &TextNode{
+		BaseNode: BaseNode{
+			value:    value,
+			children: make([]Node, 0),
+			tmpl:     tmpl,
+		},
+	}
+}
+
+func (t *TextNode) Render() (string, error) {
+	childrenOutput := make([]template.HTML, 0, len(t.children))
+	for _, child := range t.children {
+		rendered, err := child.Render()
+		if err != nil {
+			return "", err
+		}
+		childrenOutput = append(childrenOutput, template.HTML(rendered))
+	}
+
+	// Prepare the data for template
+	data := NodeData{
+		Value:    template.HTML(t.value),
+		Children: childrenOutput,
+	}
+
+	// Execute the template
+	var buf bytes.Buffer
+	if err := t.tmpl.Execute(&buf, data); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
